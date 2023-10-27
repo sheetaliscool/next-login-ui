@@ -8,6 +8,12 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Preferences from './components/Preferences/Preferences';
 import Login from './components/Login/Login';
 import 'bootstrap/dist/css/bootstrap.css';
+import { redirect } from 'react-router-dom';
+
+function setToken(userToken) {
+  localStorage.setItem('token', JSON.stringify(userToken));
+  sessionStorage.setItem('token', JSON.stringify(userToken));
+}
 
 
 const router = createBrowserRouter([
@@ -16,13 +22,17 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "dashboard",
+        path: '/login',
+        element: <Login setToken={setToken} />,
+      },      
+      {
+        path: "/dashboard",
         element: <Dashboard />,
       },
       {
-        path: "preferences",
+        path: "/preferences",
         element: <Preferences />,
-      },
+      }
     ],
   },
 ]);

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import swal from "sweetalert";
+import { Swal, swal } from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
 
 async function loginUser(credentials) {
   return fetch("http://127.0.0.1:8000/api/method/login", {
@@ -15,6 +16,23 @@ async function loginUser(credentials) {
 export default function Login({ setToken }) {
   const [usr, setUserName] = useState();
   const [pwd, setPassword] = useState();
+  const [authenticated, setauthenticated] = useState(localStorage.getItem(localStorage.getItem("authenticated")|| false));
+  const Swal = require('sweetalert2');
+  const navigate = useNavigate();
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 1000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  })
+  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,19 +40,26 @@ export default function Login({ setToken }) {
       usr,
       pwd,
     });
+    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
     setToken(token);
     
 
-    if ("full_name" in token) {
-      swal("Success", token.message, "success", {
-        buttons: false,
-        timer: 2000,
+    if (token.message === "Logged In") {
+      Toast.fire({
+        icon: 'success',
+        title: 'Signed in successfully'
       }).then((value) => {
-        localStorage.setItem("accessToken", token["accessToken"]);
-        localStorage.setItem("user", JSON.stringify(token["user"]));
+        setauthenticated(true)
+        localStorage.setItem("authenticated", true);
       });
     } else {
-      swal("Failed", token.message, "error");
+      Toast.fire({
+        icon: 'error',
+        title: 'Invalid Credentials'
+      }).then((value)=>{
+        navigate('/login');
+      })
     }
   };   return(
     <section className="text-center">
